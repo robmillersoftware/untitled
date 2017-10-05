@@ -6,7 +6,7 @@ module.exports = {
     src: src,
     browserSync: require('browser-sync').create(),
     browserSyncInit: {
-        port: 3000
+        port: 3000,
         server: {
             baseDir: dest,
             index: 'index.html'

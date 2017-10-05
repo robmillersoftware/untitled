@@ -1,17 +1,23 @@
+import {BootState}      from './gameStates/bootState';
+import {LoadState}      from './gameStates/loadState';
+import {MenuState}      from './gameStates/menuState';
+import {PlayState}      from './gameStates/playState';
+import {VictoryState}   from './gameStates/victoryState';
+
 export class GameStates {
-    constructor() {
+    constructor(game) {
         this.states = new Map();
+        this.game = game;
     }
     
-    addState(state) {
+    init() {
+        this.pushState(new BootState(this.game));    
+        this.pushState(new LoadState(this.game));
+        this.pushState(new MenuState(this.game));
+    }
+    
+    pushState(state) {
         this.states.set(state.name, state);
-    }
-    
-    getState(name) {
-        if (this.states.has(name)) {
-            return this.states.get(name);
-        }
-        
-        return null;
+        this.game.state.add(state.name, state);
     }
 }
