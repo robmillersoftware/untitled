@@ -3,6 +3,7 @@ import {AbstractState} from './abstractState';
 export class LoadState extends AbstractState {
     constructor(game) {
         super();
+        this.name = 'load';
         this.game = game;
     }
     

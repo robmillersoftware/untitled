@@ -3,6 +3,7 @@ import {AbstractState} from './abstractState';
 export class VictoryState extends AbstractState {
     constructor(game) {
         super();
+        this.name = 'victory';
         this.game = game;
     }
     
@@ -15,12 +16,12 @@ export class VictoryState extends AbstractState {
         var startLabel = this.game.add.text(80, this.game.world.height - 80,
                             'press the "W" key to restart', 
                             {font: '25px Arial', fill: '#ffffff'});
-        var wKey = this.game.keyboard.addKey(Phaser.Keyboard.W);
+        var wKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
         wKey.onDown.addOnce(this.restart, this);
     }
     
     restart() {
-        this.game.start('menu');
+        this.game.state.start('menu');
     }
     
     update() {

@@ -14,6 +14,8 @@ export class GameStates {
         this.pushState(new BootState(this.game));    
         this.pushState(new LoadState(this.game));
         this.pushState(new MenuState(this.game));
+        this.pushState(new PlayState(this.game));
+        this.pushState(new VictoryState(this.game));
     }
     
     pushState(state) {

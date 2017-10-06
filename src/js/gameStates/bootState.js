@@ -3,6 +3,7 @@ import {AbstractState} from './abstractState';
 export class BootState extends AbstractState {
     constructor(game) {
         super();
+        this.name = 'boot';
         this.game = game;
     }
     
@@ -11,8 +12,8 @@ export class BootState extends AbstractState {
     }
     
     create() {
-        game.physics.startSystem(Phaser.Physics.ARCADE);
-        game.state.start('load');
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        this.game.state.start('load');
     }
     
     update() {

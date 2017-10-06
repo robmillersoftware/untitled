@@ -3,6 +3,7 @@ import {AbstractState} from './abstractState';
 export class PlayState extends AbstractState {
     constructor(game) {
         super();
+        this.name = 'play';
         this.game = game;
     }
     
@@ -11,9 +12,9 @@ export class PlayState extends AbstractState {
     
     create() {
         this.keyboard = this.game.input.keyboard;
-        this.player = this.game.add.sprint(16,16,'player');
+        this.player = this.game.add.sprite(16,16,'player');
         this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
-        this.win = this.game.add.sprint(256,256,'win');
+        this.win = this.game.add.sprite(256,256,'win');
         this.game.physics.enable(this.win, Phaser.Physics.ARCADE);
     }
     
