@@ -1,3 +1,4 @@
+const config   = require('../config');
 const copyUtil = require('../utils/copy');
 const gulp     = require('gulp');
 
@@ -15,4 +16,8 @@ gulp.task('copyAssets', () => {
 
 gulp.task('copyLib', () => {
     copyUtil.copy('./src/lib/*', './dist/lib');
+});
+
+gulp.task('copy', ['copyHtml', 'copyAssets', 'copyLib'], () => {
+    config.browserSync.reload();
 });

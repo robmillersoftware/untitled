@@ -2,11 +2,24 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>hello phaser!</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="mobile-web-app-capable" content="yes"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <title>Crosstown</title>
+
+        <style>
+            body {
+                padding: 0px;
+                margin: 0px;
+            }
+        </style>
     </head>
     <body>
+        <!--The game will be rendered inside of the game tag -->
         <game></game>
+
         <script src="lib/phaser.min.js"></script>
+        <script src="lib/vendor.js"></script>
         <script src="js/index.js"></script>
     </body>
 </html>

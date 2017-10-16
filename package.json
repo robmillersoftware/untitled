@@ -24,16 +24,19 @@
     "browserify": "^14.4.0",
     "gulp": "^3.9.1",
     "gulp-connect": "^5.0.0",
+    "gulp-favicons": "^2.2.7",
     "gulp-livereload": "^3.8.1",
     "gulp-sass": "^3.1.0",
     "gulp-sourcemaps": "^2.6.1",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "^3.0.8",
+    "phantomjs-prebuilt": "^2.1.14",
     "require-dir": "^0.3.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
+    "delaunay-fast": "^1.0.1",
     "phaser": "^2.6.2"
   }
 }

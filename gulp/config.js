@@ -1,3 +1,7 @@
+/**
+ * This file exports the configuration object for the gulp build. Generally,
+ * hard-coded strings and configuration/options objects should all go here
+ */
 const dest = './dist';
 const src = './src';
 
@@ -13,11 +17,15 @@ module.exports = {
         },
         open: false
     },
-    browserify: {
-        entries: src + '/js/app.js', 
+    browserifyApp: {
+        entries: src + '/js/main.js', 
+        debug: true
+    },
+    browserifyLib: {
         debug: true
     },
     babelify: {
-        presets: ["es2015"] 
+        presets: ["es2015"],
+        sourceMaps: true 
     }
 };

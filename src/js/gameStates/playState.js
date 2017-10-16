@@ -1,44 +1,40 @@
 import {AbstractState} from './abstractState';
+import {InputProcessor} from '../inputprocessor';
+import {Camera} from '../camera';
+import {Terrain} from '../terrain';
 
 export class PlayState extends AbstractState {
     constructor(game) {
         super();
         this.name = 'play';
         this.game = game;
+        this.score = 0;
     }
     
     preload() {
     }
     
     create() {
-        this.keyboard = this.game.input.keyboard;
-        this.player = this.game.add.sprite(16,16,'player');
-        this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
-        this.win = this.game.add.sprite(256,256,'win');
-        this.game.physics.enable(this.win, Phaser.Physics.ARCADE);
+        this.terrain = new Terrain(this.game);
+        this.terrain.init();
+
+        this.camera = new Camera(this.game);
+
+        this.input = new InputProcessor(this.game);
+        this.input.setTarget(this.camera);
+        
+        this.game.graphics = this.game.add.graphics(0,0);
+        this.game.camera.scale.x = 0.5;
+        this.game.camera.scale.y = 0.5;
+        this.game.graphics.lineStyle(5, 0x00FF00);
+        this.game.graphics.drawCircle(0, 0, 5);
+
+        this.terrain.draw();
     }
     
     update() {
-        this.game.physics.arcade.overlap(this.player, this.win, this.victory, null, this);
-        
-        if (this.keyboard.isDown(Phaser.Keyboard.A)) {
-            this.player.body.velocity.x = -175;
-        } else if (this.keyboard.isDown(Phaser.Keyboard.D)) {
-            this.player.body.velocity.x = 175;
-        } else {
-            this.player.body.velocity.x = 0;
-        }
-
-        if (this.keyboard.isDown(Phaser.Keyboard.W)) {
-            this.player.body.velocity.y = -175;
-        } else if (this.keyboard.isDown(Phaser.Keyboard.S)) {
-            this.player.body.velocity.y = 175;
-        } else {
-            this.player.body.velocity.y = 0;
-        }
-    }
-    
-    victory() {
-        this.game.state.start('victory');
+        //Need this line or camera skips around. Not sure why ATM
+        this.game.camera.focusOnXY(0, 0);
+        this.input.processInput();
     }
 }

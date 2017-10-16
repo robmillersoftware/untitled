@@ -1,3 +1,6 @@
+/**
+ * This class is a simple wrapper for initializing the various game states
+ */
 import {BootState}      from './gameStates/bootState';
 import {LoadState}      from './gameStates/loadState';
 import {MenuState}      from './gameStates/menuState';
@@ -6,7 +9,6 @@ import {VictoryState}   from './gameStates/victoryState';
 
 export class GameStates {
     constructor(game) {
-        this.states = new Map();
         this.game = game;
     }
     
@@ -19,7 +21,6 @@ export class GameStates {
     }
     
     pushState(state) {
-        this.states.set(state.name, state);
         this.game.state.add(state.name, state);
     }
 }
