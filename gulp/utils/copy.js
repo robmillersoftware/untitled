@@ -1,5 +1,5 @@
 /**
- * This module provides some utility functions 
+ * This module provides some utility functions for copying files
  */
 const config = require('../config');
 const gulp = require('gulp');

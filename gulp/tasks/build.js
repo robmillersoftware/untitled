@@ -6,8 +6,7 @@ const uglify      = require('gulp-uglify');
 const sourcemaps  = require('gulp-sourcemaps');
 const sass        = require('gulp-sass');
 const gulp        = require('gulp');
-
-const config = require('../config');
+const config      = require('../config');
 
 /**
  * Task to build javascript files. Outputs source maps and 
@@ -15,6 +14,7 @@ const config = require('../config');
  */
 gulp.task('buildApp', () => {
     return browserify(config.browserifyApp)
+        .require('delaunator')
         .transform('babelify', config.babelify)
         .bundle()
         .pipe(source('index.js'))

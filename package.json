@@ -1,27 +1,28 @@
 {
   "name": "magicalfuntimesland",
   "version": "0.0.0",
-  "description": "## The stack includes common utilities for development including tools for adding additional tools to your workspace.",
+  "description": "Just a glorified tech demo",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/che-samples/blank.git"
+    "url": "git+https://github.com/robmillersoftware/untitled.git"
   },
-  "author": "",
+  "author": "Rob Miller",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/che-samples/blank/issues"
+    "url": "https://github.com/robmillersoftware/untitled/issues"
   },
-  "homepage": "https://github.com/che-samples/blank#readme",
+  "homepage": "https://github.com/robmillersoftware/untitled#readme",
   "devDependencies": {
     "babel": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
+    "backbone": "^1.3.3",
     "browser-sync": "^2.18.13",
     "browserify": "^14.4.0",
+    "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-connect": "^5.0.0",
     "gulp-favicons": "^2.2.7",
@@ -30,13 +31,14 @@
     "gulp-sourcemaps": "^2.6.1",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "^3.0.8",
+    "jquery": "^3.2.1",
     "phantomjs-prebuilt": "^2.1.14",
     "require-dir": "^0.3.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
-    "delaunay-fast": "^1.0.1",
+    "delaunator": "^1.0.4",
     "phaser": "^2.6.2"
   }
 }

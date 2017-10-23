@@ -1,11 +1,11 @@
 /**
  * This class is a simple wrapper for initializing the various game states
  */
-import {BootState}      from './gameStates/bootState';
-import {LoadState}      from './gameStates/loadState';
-import {MenuState}      from './gameStates/menuState';
-import {PlayState}      from './gameStates/playState';
-import {VictoryState}   from './gameStates/victoryState';
+import {BootState}      from './states/boot-state';
+import {LoadState}      from './states/load-state';
+import {MenuState}      from './states/menu-state';
+import {PlayState}      from './states/play-state';
+import {VictoryState}   from './states/victory-state';
 
 export class GameStates {
     constructor(game) {

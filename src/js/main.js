@@ -9,7 +9,13 @@ import {GameStates} from './states';
  */
 window.onload = () => {
     //Create game object
-    var game = new Phaser.Game('100%', '100%', Phaser.CANVAS, 'game');
+    var game = new Phaser.Game({
+        width: '100%',
+        height: '100%',
+        renderer: Phaser.CANVAS,
+        scaleMode: Phaser.ScaleManager.RESIZE,
+        parent: 'game'
+    });
     
     //Load the states of the game
     var states = new GameStates(game);
