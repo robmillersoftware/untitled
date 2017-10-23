@@ -10,7 +10,9 @@ const CONTROLS = {
     UP: Symbol('up'),
     DOWN: Symbol('down'),
     LEFT: Symbol('left'),
-    RIGHT: Symbol('right')
+    RIGHT: Symbol('right'),
+    SCROLL_UP: Symbol('scrollUp'),
+    SCROLL_DOWN: Symbol('scrollDown')
 };
 
 //The maximum allowable terrestrial height in the game is based on the 
@@ -19,3 +21,6 @@ const EVEREST = 29000;
 const MARIANA = -11000;
 const MAX_TERRAIN_HEIGHT = EVEREST - MARIANA;
 const SEA_LEVEL = Math.abs(MARIANA);
+
+const MIN_ZOOM = 0.25;
+const MAX_ZOOM = 1.0;

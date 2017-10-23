@@ -57,21 +57,6 @@ class Ctrls {
             }
         }
     }
-
-    /**
-     * Returns true if any controls are active
-     */
-    inputReceived() {
-        if (this.keyboard === undefined) return false;
-
-        for (let [ctrl, keys] of this.bindings) {
-            if (this.isActive(ctrl)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
 
 //Export a singleton to avoid issues with keybindings

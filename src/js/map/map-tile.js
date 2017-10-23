@@ -33,7 +33,7 @@ export class MapTile {
         return rtn;
     }
 
-    draw(graphics) {
+    drawSites(graphics) {
         this.sites.forEach((site, i) => {
             site.draw(graphics);
         });

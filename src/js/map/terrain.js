@@ -15,16 +15,26 @@ export class Terrain {
 
         this.map = new MapMesh();
 
-        this.baseLayer = this.game.add.group();
+        this.baseGroup = this.game.add.group();
+
+        this.groundGroup = this.game.add.group();
+        this.baseGroup.add(this.groundGroup);
 
         this.debugGroup = this.game.add.group();
         this.debugGraphics = this.game.add.graphics();
         this.debugGroup.add(this.debugGraphics);
+        this.baseGroup.add(this.debugGroup);
+
+        //Store a texture of the various debug drawings. Speeds up everything on render
+        this.delaunayTexture = null;
+        this.voronoiTexture = null;
+        this.sitesTexture = null;
     }
 
     init() {
         this.loadLayers();
         this.calculateMap();
+        this.draw();
     }
 
     loadLayers() {
@@ -35,7 +45,7 @@ export class Terrain {
             let x = initX;
             this.tiles.push([]);
             for (let j = 0; j < this.dimension; ++j) {
-                let sprite = this.baseLayer.create(x, y, 'dirt');
+                let sprite = this.groundGroup.create(x, y, 'dirt');
                 let tile = new MapTile(x, y, sprite);
                 this.tiles[i].push(tile);
                 
@@ -53,24 +63,48 @@ export class Terrain {
             });
         });
 
-        this.map.calculate(allSites, this.baseLayer.getLocalBounds());
+        this.map.calculate(allSites, this.baseGroup.getLocalBounds());
     }
 
-    draw(delaunay, voronoi, sites, terrain) {
-        this.debugGraphics.clear();
-        this.map.draw(this.debugGraphics, delaunay, voronoi);
+    draw(delaunay = true, voronoi = true, sites = true, terrain = true) {
+        let topLeft = this.baseGroup.left;
+        
+        if (this.voronoiTexture === null) {
+            let tex = this.map.drawVoronoi(this.debugGraphics);
+            this.voronoiTexture = this.debugGroup.create(this.baseGroup.left, this.baseGroup.top, tex);
+        }
 
-        if (sites) {
-            for (let i = 0; i < this.tiles.length; ++i) {
-                for (let j = 0; j < this.tiles[i].length; ++j) {
-                    this.tiles[i][j].draw(this.debugGraphics);
-                }
+        this.voronoiTexture.visible = voronoi;
+
+        if (this.delaunayTexture === null) {
+            let tex = this.map.drawDelaunay(this.debugGraphics);
+            this.delaunayTexture = this.debugGroup.create(this.baseGroup.left, this.baseGroup.top, tex);
+        }
+
+        this.delaunayTexture.visible = delaunay;
+
+        if (this.sitesTexture === null) {
+            this.sitesTexture = this.drawSites();
+        }
+
+        this.sitesTexture.visible = sites;
+
+        if (terrain)
+            this.groundGroup.visible = true;
+        else
+            this.groundGroup.visible = false;
+    }
+
+    drawSites() {
+        this.debugGraphics.clear();
+        for (let i = 0; i < this.tiles.length; ++i) {
+            for (let j = 0; j < this.tiles[i].length; ++j) {
+                this.tiles[i][j].drawSites(this.debugGraphics);
             }
         }
 
-        if (terrain)
-            this.baseLayer.visible = true;
-        else
-            this.baseLayer.visible = false;
+        let tex = this.debugGraphics.generateTexture();
+        this.debugGraphics.clear();
+        return this.debugGroup.create(this.baseGroup.left, this.baseGroup.top, tex);
     }
 }

@@ -8,7 +8,7 @@ export class InputProcessor {
         this.game = game;
 
         Controls.setKeyboard(this.game.input.keyboard);
-        
+
         this.target = null;
         this.controls = null;
     }

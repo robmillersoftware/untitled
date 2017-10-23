@@ -4,7 +4,7 @@ import {InputHandler} from './input/input-handler';
  * This class functions as an input handler and a wrapper for the Phaser.Camera
  */
 export class Camera extends InputHandler {
-    constructor(game, id = 'camera') {
+    constructor(game, group, id = 'camera') {
         super(id);
 
         //The map of controls handled by this object and the associated callbacks
@@ -25,7 +25,7 @@ export class Camera extends InputHandler {
             true);
 
         this.game = game;
-        this.group = this.game.add.group();
+        this.group = group;
 
         //The cursor is an invisible object that the camera follows. Phaser's camera isn't
         //very good at zooming and moving independently, so having it follow a displayObject 
@@ -37,29 +37,60 @@ export class Camera extends InputHandler {
         this.game.camera.bounds = null;
 
         //Zoom out
-        this.game.camera.scale.set(0.5, 0.5);
-        
+        //this.game.camera.scale.set(0.5, 0.5);
+        this.group.scale.set(0.5, 0.5);
         this.game.camera.follow(this.cursor);
+
+        this.game.input.mouse.mouseWheelCallback = this.onScroll.bind(this);
     }
 
     onUp() {
-        this.cursor.body.velocity.y = -5000;
+        this.cursor.body.velocity.y -= 1000;
     }
 
     onDown() {
-        this.cursor.body.velocity.y = 5000;
+        this.cursor.body.velocity.y += 1000;
     }
 
     onRight() {
-        this.cursor.body.velocity.x = 5000;
+        this.cursor.body.velocity.x += 1000;
     }
 
     onLeft() {
-        this.cursor.body.velocity.x = -5000;
+        this.cursor.body.velocity.x -= 1000;
     }
 
     onStop() {
         this.cursor.body.velocity.x = 0;
         this.cursor.body.velocity.y = 0;
+    }
+
+    onScroll(event) {
+        if (this.game.input.mouse.wheelDelta === Phaser.Mouse.WHEEL_UP) {
+            this.onScrollUp();
+        } else {
+            this.onScrollDown();
+        }
+
+        this.game.camera.follow(this.cursor);
+    }
+
+    onScrollUp() {
+        this.group.scale.x += 0.1;
+        this.group.scale.y += 0.1;
+
+        if (this.group.scale.y > MAX_ZOOM || this.group.scale.x > MAX_ZOOM) {
+            this.group.scale.x = MAX_ZOOM;
+            this.group.scale.y = MAX_ZOOM;
+        }
+    }
+
+    onScrollDown() {
+        this.group.scale.x -= 0.1;
+        this.group.scale.y -= 0.1;
+
+        if (this.group.scale.y < MIN_ZOOM || this.group.scale.x < MIN_ZOOM) {
+            this.group.scale.set(MIN_ZOOM);
+        }
     }
 }

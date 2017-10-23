@@ -38,31 +38,30 @@ export class MapMesh {
         this.delaunay = new Delaunator(sites, point => point.x, point => point.y);
     }
     
-    /**
-     * Traces the voronoi diagram and delaunay triangulation. Also shows all
-     * sites. For debugging purposes.
-     * @param {Phaser.Graphics} graphics 
-     */
-    draw(graphics, delaunay, voronoi) {
-        if (voronoi) {
-            this.diagram.edges.forEach((edge, i) => {
-                graphics.lineStyle(2, 0x000088);
-                graphics.moveTo(edge.va.x, edge.va.y);
-                graphics.lineTo(edge.vb.x, edge.vb.y);
-            });
+    drawDelaunay(graphics) {
+        graphics.clear();
+        for (let i = 0; i < this.delaunay.triangles.length; i += 3) {
+            let first = this.delaunay.triangles[i];
+            let second = this.delaunay.triangles[i+1];
+            let third = this.delaunay.triangles[i+2];
+
+            graphics.moveTo(this.sites[first].x, this.sites[first].y);
+            graphics.lineStyle(2, 0x882288);
+            graphics.lineTo(this.sites[second].x, this.sites[second].y);
+            graphics.lineTo(this.sites[third].x, this.sites[third].y);
         }
 
-        if (delaunay) {
-            for (let i = 0; i < this.delaunay.triangles.length; i += 3) {
-                let first = this.delaunay.triangles[i];
-                let second = this.delaunay.triangles[i+1];
-                let third = this.delaunay.triangles[i+2];
+        return graphics.generateTexture();
+    }
 
-                graphics.moveTo(this.sites[first].x, this.sites[first].y);
-                graphics.lineStyle(2, 0x882288);
-                graphics.lineTo(this.sites[second].x, this.sites[second].y);
-                graphics.lineTo(this.sites[third].x, this.sites[third].y);
-            }
-        }
+    drawVoronoi(graphics) {
+        graphics.clear();
+        this.diagram.edges.forEach((edge, i) => {
+            graphics.lineStyle(2, 0x000088);
+            graphics.moveTo(edge.va.x, edge.va.y);
+            graphics.lineTo(edge.vb.x, edge.vb.y);
+        });
+
+        return graphics.generateTexture();
     }
 }
