@@ -93,4 +93,8 @@ export class Camera extends InputHandler {
             this.group.scale.set(MIN_ZOOM);
         }
     }
+
+    get position() {
+        return this.game.camera.target.position;
+    }
 }
