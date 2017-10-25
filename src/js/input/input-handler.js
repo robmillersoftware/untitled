@@ -39,7 +39,6 @@ export class InputHandler {
 
         for (let [key, value] of this.controls) {
             if (this.isControlActive(key)) {
-                console.log('hello');
                 let callback = value.bind(this);
                 callback();
             }

@@ -22,5 +22,5 @@ const MARIANA = -11000;
 const MAX_TERRAIN_HEIGHT = EVEREST - MARIANA;
 const SEA_LEVEL = Math.abs(MARIANA);
 
-const MIN_ZOOM = 0.25;
+const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 1.0;

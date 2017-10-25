@@ -1,7 +1,7 @@
 import {AbstractState} from './abstract-state';
 import {InputProcessor} from '../input/input-processor';
 import {Camera} from '../camera';
-import {Terrain} from '../map/terrain';
+import {Terrain} from '../terrain/terrain';
 
 export class PlayState extends AbstractState {
     constructor(game) {
@@ -9,10 +9,9 @@ export class PlayState extends AbstractState {
         this.name = 'play';
         this.game = game;
 
-        this.uiPanel = null;
-
         //These correspond to UI elements for the procedural terrain
         //debugging UI
+        this.uiPanel = null;
         this.delaunayCheck = null;
         this.voronoiCheck = null;
         this.sitesCheck = null;

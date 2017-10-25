@@ -1,4 +1,4 @@
-import {MapSite} from './map-site';
+import {MapSite} from './map/map-site';
 
 export class MapTile {
     constructor(x, y, sprite, detail = 1) {
@@ -45,5 +45,9 @@ export class MapTile {
             rtn.push(site.center);
         });
         return rtn;
+    }
+
+    destroy() {
+        this.sprite.kill();
     }
 }

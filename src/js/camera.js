@@ -45,19 +45,19 @@ export class Camera extends InputHandler {
     }
 
     onUp() {
-        this.cursor.body.velocity.y -= 1000;
+        this.cursor.body.velocity.y -= 500;
     }
 
     onDown() {
-        this.cursor.body.velocity.y += 1000;
+        this.cursor.body.velocity.y += 500;
     }
 
     onRight() {
-        this.cursor.body.velocity.x += 1000;
+        this.cursor.body.velocity.x += 500;
     }
 
     onLeft() {
-        this.cursor.body.velocity.x -= 1000;
+        this.cursor.body.velocity.x -= 500;
     }
 
     onStop() {
