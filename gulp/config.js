@@ -2,6 +2,7 @@
  * This file exports the configuration object for the gulp build. Generally,
  * hard-coded strings and configuration/options objects should all go here
  */
+
 const dest = './dist';
 const src = './src';
 

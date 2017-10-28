@@ -63,7 +63,7 @@ export class PlayState extends AbstractState {
     
     update() {
         this.input.processInput();
-        this.terrain.checkPlayerPosition(this.camera.cursor);
+        //this.terrain.checkPlayerPosition(this.camera.cursor);
     }
 
     resize(width, height) {

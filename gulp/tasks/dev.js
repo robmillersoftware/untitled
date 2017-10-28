@@ -10,7 +10,7 @@ gulp.task('dev', ['clean', 'build', 'copy'], () => {
     config.browserSync.init(config.browserSyncInit);
 
     gulp.watch(config.src + '/js/**/*.js', ['build']);
-    gulp.watch(config.src + '/lib/**/*.js', ['build']);
+    gulp.watch(config.src + '/lib/**/*.js', ['copyLib']);
     gulp.watch(config.src + '/assets/styling/**/*.scss', ['build']);
     gulp.watch(config.src + '/**/*.html').on('change', copyUtil.copyHtmlAndReload);
 });

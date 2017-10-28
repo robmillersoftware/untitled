@@ -4,7 +4,7 @@
  * @export Terrain 
  */
 import {MapMesh} from './map/map-mesh';
-import {MapTile} from './map/map-tile';
+import {MapTile} from './tile';
 import {Chunk} from './chunk';
 
 /**
@@ -49,45 +49,59 @@ export class Terrain {
         this.rootChunk = this.loadInitialChunk();
 
         //Recursively load surrounding chunks until minChunkDistance condition is met in all 8 directions
-        this.loadChunks([this.rootChunk]);
+        this.loadChunks();
+
+        //Calculates the heightmap for all loaded chunks
+        this.calculateMap();
 
         //Draw the initial debug objects
         this.draw();
     }
-    
-    loadLayers() {
-        let initX = this.game.world.centerX - Math.floor(this.dimension / 2 * TILE_SIZE);
-        let y = this.game.world.centerY - Math.floor(this.dimension / 2 * TILE_SIZE);
 
-        for (let i = 0; i < this.dimension; ++i) {
-            let x = initX;
-            this.tiles.push([]);
-            for (let j = 0; j < this.dimension; ++j) {
-                let sprite = this.groundGroup.create(x, y, 'dirt');
-                let tile = new MapTile(x, y, sprite);
-                this.tiles[i].push(tile);
-                
-                x += TILE_SIZE;
-            }
-            y += TILE_SIZE;
-        }
+    loadChunks(chunks = [this.rootChunk], dist = 0) {
+        dist++;
+        if (dist > this.minChunkDistance) return;
 
-        this.loadingZoneBox.anchor.set(0.5);
-        this.loadingZoneBox.x = this.baseGroup.centerX;
-        this.loadingZoneBox.y = this.baseGroup.centerY;
+        let obj = this;
+        chunks.forEach(chunk => {
+            chunk.buildNeighbors();
+            obj.loadChunks(chunk.neighbors.all, dist);
+        });
+
+        return;
     }
 
     calculateMap() {
         let allSites = [];
-        this.tiles.forEach((arr, i) => {
-            arr.forEach((tile, j) => {
-                allSites.push(...tile.centers);
-            });
+        Chunk.getAllChunks(this.rootChunk).forEach(chunk => {
+            let sites = chunk.sites;
+            console.log('Chunk = ' + chunk.toString() + ' and sites: ' + sites);
+            allSites.push(...chunk.sites);
         });
 
-        this.map.calculate(allSites, this.baseGroup.getLocalBounds());
+        Chunk.clearFlags(this.rootChunk);
+        this.map.calculate(allSites, this.game.world.bounds);
     }
 
+    /**
+     * Convenience function to handle loading of the first root chunk in the center of the game world
+     */
+    loadInitialChunk() {
+        let x = this.game.world.centerX - Math.floor(Chunk.width / 2);
+        let y = this.game.world.centerY - Math.floor(Chunk.height / 2);
+        let rtn = new Chunk(x, y);
+        rtn.buildNeighbors();
+        
+        return rtn;
+    }
+
+    /**
+     * This function handles the drawing of the debug view
+     * @param {boolean} delaunay 
+     * @param {boolean} voronoi 
+     * @param {boolean} sites 
+     * @param {boolean} terrain 
+     */
     draw(delaunay = true, voronoi = true, sites = true, terrain = true) {
         let topLeft = this.baseGroup.left;
         
@@ -121,112 +135,18 @@ export class Terrain {
         this.shouldRedraw = false;
     }
 
+    /**
+     * Draws the array of sites as circles
+     */
     drawSites() {
         this.debugGraphics.clear();
-        for (let i = 0; i < this.tiles.length; ++i) {
-            for (let j = 0; j < this.tiles[i].length; ++j) {
-                this.tiles[i][j].drawSites(this.debugGraphics);
-            }
-        }
+        Chunk.getAllChunks(this.rootChunk).forEach(chunk => {
+            chunk.drawSites(this.debugGraphics);
+        });
 
+        Chunk.clearFlags(this.rootChunk);
         let tex = this.debugGraphics.generateTexture();
         this.debugGraphics.clear();
         return this.debugGroup.create(this.baseGroup.left, this.baseGroup.top, tex);
-    }
-
-    checkPlayerPosition(cursor) {
-        if (!this.loadingZoneBox.overlap(cursor)) {
-            this.loadingZoneBox.loadTexture(this.loadingZoneTexRed);
-            this.addToMap(cursor.x < this.loadingZoneBox.left,
-                cursor.y < this.loadingZoneBox.top,
-                cursor.x > this.loadingZoneBox.right,
-                cursor.y > this.loadingZoneBox.bottom);
-        } else {
-            if (this.loadingZoneBox.texture !== this.loadingZoneTexGreen) {
-                this.loadingZoneBox.loadTexture(this.loadingZoneTexGreen);
-            }
-        }
-    }
-
-    addToMap(left, top, right, bottom) {
-        for (let i = 0; i < Math.ceil(this.dimension / 2); ++i) {
-            console.log(this.baseGroup.left + ',' + this.baseGroup.top + " and " + this.groundGroup.left + ',' + this.groundGroup.top);
-            if (left) {
-                this.tiles.forEach((arr, i) => {
-                    let x = this.baseGroup.left - TILE_SIZE;
-                    let y = this.baseGroup.top + i * TILE_SIZE;
-                    let sprite = this.groundGroup.create(x, y, 'dirt');
-                    this.tiles[i].unshift(new MapTile(x, y, sprite));
-                    
-                    //TODO: Implement tile caching
-                    let tileToCache = this.tiles[i].pop();
-                    tileToCache.destroy();
-                });
-            } else if (right) {
-                this.tiles.forEach((arr, i) => {
-                    let x = this.baseGroup.right;
-                    let y = this.baseGroup.top + i * TILE_SIZE;
-                    let sprite = this.groundGroup.create(x, y, 'dirt');
-                    this.tiles[i].push(new MapTile(x, y, sprite));
-
-                    let tileToCache = this.tiles[i].shift();
-                    tileToCache.destroy();
-                });
-            }
-
-            this.baseGroup.width = this.boardSize;
-            this.baseGroup.height = this.boardSize;
-            this.groundGroup.width = this.boardSize;
-            this.groundGroup.height = this.boardSize;
-
-            if (top) {
-                this.tiles.unshift(new Array(this.tiles[0].length));
-                this.tiles[0].forEach((tile, i) => {
-                    let x = this.baseGroup.left + i * TILE_SIZE;
-                    let y = this.baseGroup.top - TILE_SIZE;
-                    let sprite = this.groundGroup.create(x, y, 'dirt');
-                    tile = new MapTile(x, y, sprite);
-                });
-
-                let tilesToCache = this.tiles.pop();
-                tilesToCache.forEach(tile => tile.destroy());
-            } else if (bottom) {
-                this.tiles.push(new Array(this.tiles[0].length));
-                this.tiles[this.tiles.length - 1].forEach((tile, i) => {
-                    let x = this.baseGroup.left + i * TILE_SIZE;
-                    let y = this.baseGroup.bottom;
-                    let sprite = this.groundGroup.create(x, y, 'dirt');
-                    tile = new MapTile(x, y, sprite);a
-                });
-
-                let tilesToCache = this.tiles.shift();
-                tilesToCache.forEach(tile => tile.destroy());
-            }
-        }
-
-        this.baseGroup.width = this.boardSize;
-        this.baseGroup.height = this.boardSize;
-        this.groundGroup.width = this.boardSize;
-        this.groundGroup.height = this.boardSize;
-
-        if (left || right || top || bottom) {
-            this.loadingZoneBox.anchor.set(0.5);
-            this.loadingZoneBox.x = this.baseGroup.centerX;
-            this.loadingZoneBox.y = this.baseGroup.centerY;
-
-            this.shouldRedraw = true;
-            this.calculateMap();
-        }
-    }
-
-    /**
-     * Convenience function to handle loading of the first root chunk in the center of the game world
-     */
-    loadInitialChunk() {
-        let x = this.game.world.centerX - Math.floor(Chunk.width / 2);
-        let y = this.game.world.centerY - Math.floor(Chunk.height / 2);
-        let rtn = new Chunk(x, y);
-        
-        return rtn;
     }
 }

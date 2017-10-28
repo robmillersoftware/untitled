@@ -5,6 +5,7 @@ const buffer      = require('vinyl-buffer');
 const uglify      = require('gulp-uglify');
 const sourcemaps  = require('gulp-sourcemaps');
 const gulp        = require('gulp');
+const gulpUtil    = require('gulp-util');
 const config      = require('../config');
 
 /**

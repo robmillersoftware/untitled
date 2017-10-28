@@ -5,6 +5,9 @@
 //The size in pixels of the assets used for map tiles
 const TILE_SIZE = 512;
 
+//The height and width of each chunk in tiles
+const CHUNK_SIZE = 3;
+
 //An object containing a property for each control supported by this game
 const CONTROLS = {
     UP: Symbol('up'),

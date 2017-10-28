@@ -12,3 +12,24 @@ const hexFromHeight = (height) => {
 
     return '0x' + (Math.abs(r<<16|g<<8|b)).toString(16);
 }
+
+/**
+ * Safely stringifys a JSON object with circular dependencies
+ */
+const safeStringify = obj => {
+    var cache = [];
+
+    if (obj === null) return null;
+    
+    return JSON.stringify(obj, (key, value) => {
+      if (value instanceof Object) {
+        if (cache.indexOf(value) !== -1) {
+          // Circular reference found, discard key
+          return;
+        }
+        // Store value in our collection
+        cache.push(value);
+      }
+      return value;
+    });
+  }
