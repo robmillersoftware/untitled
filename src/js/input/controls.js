@@ -2,6 +2,8 @@
  * This class consists of key bindings for controls and utility functions for
  * testing input
  */
+import {CONTROLS} from 'globals.js';
+
 class Ctrls {
     constructor() {
         this.bindings = new Map();
@@ -12,16 +14,20 @@ class Ctrls {
      * TODO: Use a DB or temporary storage for these
      */
     loadDefaultBindings() {
-        this.bindings.set(CONTROLS.UP, [Phaser.Keyboard.UP, Phaser.Keyboard.W]);
-        this.bindings.set(CONTROLS.DOWN, [Phaser.Keyboard.DOWN, Phaser.Keyboard.S]);
-        this.bindings.set(CONTROLS.LEFT, [Phaser.Keyboard.LEFT, Phaser.Keyboard.A]);
-        this.bindings.set(CONTROLS.RIGHT, [Phaser.Keyboard.RIGHT, Phaser.Keyboard.D]);
+        this.bindings.set(CONTROLS.UP,
+            [Phaser.Input.Keyboard.KeyCodes.UP, Phaser.Input.Keyboard.KeyCodes.W]);
+        this.bindings.set(CONTROLS.DOWN,
+            [Phaser.Input.Keyboard.KeyCodes.DOWN, Phaser.Input.Keyboard.KeyCodes.S]);
+        this.bindings.set(CONTROLS.LEFT,
+            [Phaser.Input.Keyboard.KeyCodes.LEFT, Phaser.Input.Keyboard.KeyCodes.A]);
+        this.bindings.set(CONTROLS.RIGHT,
+            [Phaser.Input.Keyboard.KeyCodes.RIGHT, Phaser.Input.Keyboard.KeyCodes.D]);
     }
 
     /**
      * Sets the keyboard to be used by the singleton instance of this
      * class
-     * @param {Phaser.Keyboard} kb 
+     * @param {Phaser.Keyboard} kb
      */
     setKeyboard(kb) {
         this.keyboard = kb;
@@ -29,8 +35,8 @@ class Ctrls {
 
     /**
      * Overwrites the bindings on a control
-     * @param {CONTROLS} ctrl 
-     * @param {Array of Phaser.Key} keys 
+     * @param {CONTROLS} ctrl
+     * @param {Array of Phaser.Key} keys
      */
     setBinding(ctrl, keys) {
         this.bindings.set(ctrl, keys);
@@ -38,7 +44,7 @@ class Ctrls {
 
     /**
      * Test if a control is active
-     * @param {CONTROLS} ctrl 
+     * @param {CONTROLS} ctrl
      */
     isActive(ctrl) {
         let value = this.bindings.get(ctrl);

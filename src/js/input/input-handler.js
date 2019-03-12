@@ -1,5 +1,5 @@
 
-import {Controls} from './controls';
+import {Controls} from 'input/controls';
 
 /**
  * This is an abstract class that must be overridden by any object that
@@ -22,7 +22,7 @@ export class InputHandler {
 
     /**
      * Wrapper for Controls.isActive so as to not add another import
-     * @param {CONTROLS} ctrl 
+     * @param {CONTROLS} ctrl
      */
     isControlActive(ctrl) {
         return Controls.isActive(ctrl);

@@ -1,9 +1,9 @@
-import {MapSite} from './map/map-site';
+import {MapSite} from 'terrain';
 
 export class MapTile {
     constructor(x, y, sprite, detail = 1) {
         this.sprite = sprite;
-        this.paddedBounds = new Phaser.Rectangle(x + 3, y + 3, 
+        this.paddedBounds = new Phaser.Rectangle(x + 3, y + 3,
             this.sprite.width - 6, this.sprite.height - 6);
         this.sites = this.generateRandomSites(detail);
     }

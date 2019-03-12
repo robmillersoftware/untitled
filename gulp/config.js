@@ -11,7 +11,7 @@ module.exports = {
     src: src,
     browserSync: require('browser-sync').create(),
     browserSyncInit: {
-        port: 3000,
+        port: 9000,
         server: {
             baseDir: dest,
             index: 'index.html'
@@ -19,14 +19,14 @@ module.exports = {
         open: false
     },
     browserifyApp: {
-        entries: src + '/js/main.js', 
+        entries: src + '/js/main.js',
         debug: true
     },
     browserifyLib: {
         debug: true
     },
     babelify: {
-        presets: ["es2015"],
-        sourceMaps: true 
+        presets: [['@babel/preset-env', { useBuiltIns: 'usage' }]],
+        sourceMaps: true
     }
 };

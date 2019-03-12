@@ -1,37 +1,36 @@
 /**
- * This module manages the game terrain. This includes geography, heightmaps, navigation markers, etc.
- * 
- * @export Terrain 
+ * This module manages the scene terrain. This includes geography, heightmaps, navigation markers, etc.
+ *
+ * @export Terrain
  */
-import {MapMesh} from './map/map-mesh';
-import {MapTile} from './tile';
-import {Chunk} from './chunk';
+import {MapMesh, MapTile, Chunk} from 'terrain';
+import * as Utils from 'utils.js';
 
 /**
- * this class manages the various entities that compose the terrain in the game world
+ * this class manages the various entities that compose the terrain in the scene world
  */
 export class Terrain {
     /**
-     * This is the only constructor for this class. Game must not be null
-     * @param {Phaser.Game} game a reference to the global game object 
+     * This is the only constructor for this class. scene must not be null
+     * @param {Phaser.scene} scene a reference to the global scene object
      */
-    constructor(game) {
-        this.game = game;
+    constructor(scene) {
+        this.scene = scene;
         this.map = new MapMesh();
 
         //This is the minimum number of chunks to have loaded around the chunk the player currently occupies
         this.minChunkDistance = 2;
 
         //Build group hierarchy
-        this.baseGroup = this.game.add.group();
+        this.baseGroup = this.scene.add.container();
 
         //Ground group holds all terrain elements
-        this.groundGroup = this.game.add.group();
+        this.groundGroup = this.scene.add.container();
         this.baseGroup.add(this.groundGroup);
 
         //Debug group holds debugging graphics
-        this.debugGroup = this.game.add.group();
-        this.debugGraphics = this.game.add.graphics();
+        this.debugGroup = this.scene.add.container();
+        this.debugGraphics = this.scene.add.graphics();
         this.debugGroup.add(this.debugGraphics);
         this.baseGroup.add(this.debugGroup);
 
@@ -72,39 +71,57 @@ export class Terrain {
     }
 
     calculateMap() {
+        let topLeft = new Phaser.Geom.Point(this.scene.sys.game.canvas.width / 2,
+            this.scene.sys.game.canvas.height / 2);
+        let bottomRight = new Phaser.Geom.Point(this.scene.sys.game.canvas.width / 2,
+            this.scene.sys.game.canvas.height / 2);
+
         let allSites = [];
         Chunk.getAllChunks(this.rootChunk).forEach(chunk => {
+            console.log(chunk.topLeft + ' ' + topLeft);
+            if (!chunk.topLeft) {
+                console.log(Utils.safeStringify(chunk));
+            }
+            if (chunk.topLeft.x <= topLeft.x && chunk.topLeft.y <= topLeft.y) {
+                topLeft = chunk.topLeft;
+            } else if (chunk.bottomRight.x >= bottomRight.x && chunk.bottomRight.y >= bottomRight.y) {
+                bottomRight = chunk.bottomRight;
+            }
+
             let sites = chunk.sites;
-            console.log('Chunk = ' + chunk.toString() + ' and sites: ' + sites);
-            allSites.push(...chunk.sites);
+            if (sites) {
+                allSites.push(...chunk.sites);
+            }
         });
 
         Chunk.clearFlags(this.rootChunk);
-        this.map.calculate(allSites, this.game.world.bounds);
+
+        let bounds = new Phaser.Geom.Rectangle(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+        this.map.calculate(allSites, bounds);
     }
 
     /**
-     * Convenience function to handle loading of the first root chunk in the center of the game world
+     * Convenience function to handle loading of the first root chunk in the center of the scene world
      */
     loadInitialChunk() {
-        let x = this.game.world.centerX - Math.floor(Chunk.width / 2);
-        let y = this.game.world.centerY - Math.floor(Chunk.height / 2);
+        let x = this.scene.sys.game.canvas.width / 2 - Math.floor(Chunk.width / 2);
+        let y = this.scene.sys.game.canvas.height / 2 - Math.floor(Chunk.height / 2);
         let rtn = new Chunk(x, y);
         rtn.buildNeighbors();
-        
+
         return rtn;
     }
 
     /**
      * This function handles the drawing of the debug view
-     * @param {boolean} delaunay 
-     * @param {boolean} voronoi 
-     * @param {boolean} sites 
-     * @param {boolean} terrain 
+     * @param {boolean} delaunay
+     * @param {boolean} voronoi
+     * @param {boolean} sites
+     * @param {boolean} terrain
      */
     draw(delaunay = true, voronoi = true, sites = true, terrain = true) {
         let topLeft = this.baseGroup.left;
-        
+
         if (this.voronoiTexture === null || this.shouldRedraw) {
             let tex = this.map.drawVoronoi(this.debugGraphics);
             this.voronoiTexture = this.debugGroup.create(this.baseGroup.left, this.baseGroup.top, tex);

@@ -1,4 +1,4 @@
-import {Controls} from './controls';
+import {Controls} from 'input/controls';
 
 /**
  * This class directs input to a target on each update
@@ -15,7 +15,7 @@ export class InputProcessor {
 
     /**
      * Sets the target object that input is being passed to
-     * @param {*} target 
+     * @param {*} target
      */
     setTarget(target) {
         this.target = target;

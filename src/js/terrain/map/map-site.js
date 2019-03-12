@@ -1,7 +1,9 @@
+import { MAX_TERRAIN_HEIGHT } from 'globals.js';
+
 export class MapSite {
     constructor(x, y) {
         let height = Math.floor(Math.random() * MAX_TERRAIN_HEIGHT);
-        this.center = new Phaser.Point(x, y);
+        this.center = new Phaser.Geom.Point(x, y);
         this.height = height;
         this.neighbors = [];
         this.edges = [];

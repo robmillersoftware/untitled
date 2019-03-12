@@ -2,9 +2,9 @@
  * Map height range to hex colors. 0-255 are valid ranges for each comopnent.
  * The colors go from red to yellow to green. Blue is unused currently
  * 511 is maximum output value (256 * 2 - 1)
- * @param {*} height 
+ * @param {*} height
  */
-const hexFromHeight = (height) => {
+export const hexFromHeight = (height) => {
     let output = Math.floor(height / MAX_TERRAIN_HEIGHT * 511);
     let r = output > 255 ? 511 - output : 255;
     let g = output > 255 ? 255 : output;
@@ -16,11 +16,11 @@ const hexFromHeight = (height) => {
 /**
  * Safely stringifys a JSON object with circular dependencies
  */
-const safeStringify = obj => {
+export const safeStringify = obj => {
     var cache = [];
 
     if (obj === null) return null;
-    
+
     return JSON.stringify(obj, (key, value) => {
       if (value instanceof Object) {
         if (cache.indexOf(value) !== -1) {

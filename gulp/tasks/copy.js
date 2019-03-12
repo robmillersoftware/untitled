@@ -6,19 +6,26 @@ const gulp     = require('gulp');
  * Copy tasks for various file types. These are separated in case further
  * logic needs to be performed on a file type
  */
-gulp.task('copyHtml', () => {
-    copyUtil.copy('./src/**/*.html', './dist');
-});
+function copyHtml(done) {
+  copyUtil.copy('./src/**/*.html', './dist');
+  done();
+}
 
-gulp.task('copyAssets', () => {
-    copyUtil.copy('./src/assets/images/*', './dist/assets/images');
-    copyUtil.copy('./src/assets/kenney/**/*', './dist/assets/kenney');
-});
+function copyAssets(done) {
+  copyUtil.copy('./src/assets/images/*', './dist/assets/images');
+  copyUtil.copy('./src/assets/kenney/**/*', './dist/assets/kenney');
+  done();
+}
 
-gulp.task('copyLib', () => {
-    copyUtil.copy('./src/lib/*', './dist/lib');
-});
+function copyLib(done) {
+  copyUtil.copy('./src/lib/*', './dist/lib');
+  done();
+}
 
-gulp.task('copy', ['copyHtml', 'copyAssets', 'copyLib'], () => {
-    config.browserSync.reload();
-});
+function copy(done) {
+  config.browserSync.reload();
+  done();
+}
+
+gulp.task('copy', gulp.series(copyHtml, copyAssets, copyLib, copy));
+module.exports = gulp;

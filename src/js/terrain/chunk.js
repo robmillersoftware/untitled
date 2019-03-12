@@ -1,13 +1,14 @@
-import {MapTile} from './tile';
- 
+import { MapTile } from 'terrain';
+import { CHUNK_SIZE, TILE_SIZE } from 'globals.js';
+
 var sorter = require('node-object-hash')({coerce: false, sort: true});
 
 export class Chunk {
     constructor(initX, initY, group) {
-        this.id = 
         this.tiles = [...Array(CHUNK_SIZE)].map(() => new Array(CHUNK_SIZE));
         this.group = group;
-        this.topLeft = new Phaser.Point(initX, initY);
+        this.topLeft = new Phaser.Geom.Point(initX, initY);
+        this.bottomRight = new Phaser.Geom.Point(initX + Chunk.width, initY + Chunk.height);
 
         this.tiles.forEach((arr, i) => {
             arr.forEach((tile, j) => {
@@ -104,11 +105,15 @@ export class Chunk {
         this.neighbors.W.neighbors.S = this.neighbors.SW;
     }
 
-    /**
-     * TODO: CURRENTLY RETURNS TOO MANY CHUNKS, NO IDEA WHY
-     * @param {*} root 
-     */
+    //TODO: FIX RECURSIVE FUNCTION. PRIORITY #1!!!!!
     static getAllChunks(root) {
+        let rtn = [];
+        rtn.push(root);
+
+        return root.getAllChunks(rtn, root);
+    }
+
+    getAllChunks(arr, root) {
         if (root === null) return [];
 
         let rtn = [];
@@ -118,11 +123,10 @@ export class Chunk {
         root.neighbors.all.forEach(n => {
             if (n === null) return;
 
-            if (n.visited === undefined || !n.visited) 
+            if (n.visited === undefined || !n.visited)
                 rtn.push([...Chunk.getAllChunks(n)]);
         });
 
-        console.log('returning: ' + rtn);
         return rtn;
     }
 

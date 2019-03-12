@@ -1,6 +1,11 @@
-/**
- * Gulp build file. Aggregates tasks and configurations found in gulp/tasks folder
- * Any logic that would be added here likely should be added there instead.
- */
-const requireDir = require('require-dir');
-requireDir('./gulp/tasks', {recurse: true});
+'use strict';
+
+var gulp = require('gulp');
+var HubRegistry = require('gulp-hub');
+
+var hub = new HubRegistry(['gulp/tasks/*.js']);
+
+gulp.registry(hub);
+
+gulp.task('dev', gulp.series('clean', 'build', 'copy', 'devWatch'));
+gulp.task('default', gulp.series('dev'));
