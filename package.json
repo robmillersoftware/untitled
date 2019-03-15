@@ -2,8 +2,11 @@
   "name": "magicalfuntimesland",
   "version": "0.0.0",
   "description": "Just a glorified tech demo",
-  "main": "index.js",
+  "main": "./server/index.js",
   "scripts": {
+    "build": "NODE_PATH=./src/js gulp build",
+    "serve": "node ./server/index.js",
+    "full": "npm run build && npm run serve",
     "start": "NODE_PATH=./src/js gulp"
   },
   "repository": {
@@ -38,6 +41,7 @@
     "@babel/core": "^7.3.4",
     "@babel/polyfill": "^7.2.5",
     "@babel/preset-env": "^7.3.4",
+    "cookie-parser": "^1.4.4",
     "delaunator": "^3.0.2",
     "express": "^4.16.4",
     "morgan": "^1.9.1",
