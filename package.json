@@ -4,10 +4,10 @@
   "description": "Just a glorified tech demo",
   "main": "./server/index.js",
   "scripts": {
-    "build": "NODE_PATH=./src/js gulp build",
+    "build": "NODE_PATH=./src/game gulp build",
     "serve": "node ./server/index.js",
     "full": "npm run build && npm run serve",
-    "start": "NODE_PATH=./src/js gulp"
+    "start": "NODE_PATH=./src/game gulp"
   },
   "repository": {
     "type": "git",
