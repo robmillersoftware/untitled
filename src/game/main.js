@@ -15,14 +15,6 @@ window.onload = () => {
       MenuScene,
       PlayScene
     ],
-    physics: {
-      physics: {
-        default: 'arcade',
-        arcade: {
-          debug: false // change if you need
-        }
-      },
-    },
     parent: 'game'
   });
 };

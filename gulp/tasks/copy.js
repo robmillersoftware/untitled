@@ -12,8 +12,7 @@ function copyHtml(done) {
 }
 
 function copyAssets(done) {
-  copyUtil.copy('./src/assets/images/*', './dist/assets/images');
-  copyUtil.copy('./src/assets/kenney/**/*', './dist/assets/kenney');
+  copyUtil.copy('./src/assets/**/*', './dist/assets');
   done();
 }
 

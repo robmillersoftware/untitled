@@ -7,20 +7,13 @@ export class LoadScene extends Phaser.Scene {
 
     preload() {
         this.loadAssets();
-        this.add.image(this.centerX(), this.centerY(), 'logo');
+        //this.add.image(this.centerX(), this.centerY(), 'logo');
         this.createProgressBar(this.centerX(), this.centerY() + 200);
     }
 
 
     loadAssets () {
-        this.load.spritesheet('player', 'assets/images/dude.png',
-            { frameWidth: 32, frameHeight: 48 });
-        this.load.image('win', 'assets/images/win.png');
-        this.load.image('star', 'assets/images/star.png');
-        this.load.image('sky', 'assets/images/sky.png');
-        this.load.image('ground', 'assets/images/platform.png');
-        this.load.image('dirt', 'assets/images/dirt.png');
-        this.load.image('grass', 'assets/images/grass.png');
+        this.load.image('floor', 'assets/top-down/floor.png');
         this.load.start();
     }
 

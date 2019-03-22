@@ -9,11 +9,10 @@ export class BootScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('logo', 'assets/images/logo.png')
+        //this.load.image('logo', 'assets/images/logo.png')
     }
 
     create() {
-        console.log('WE LOADING');
         this.scene.start('load');
     }
 }

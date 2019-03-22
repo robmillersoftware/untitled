@@ -1,9 +1,15 @@
-const TILE_SIZE = 16;
-const CELLS = 100;
+//Have to use require instead of import for compatibility for this module
+let Delaunator = require('delaunator');
 
-const MAX_ROOM_WIDTH = 16;
-const MAX_ROOM_HEIGHT = 18;
-const MAX_ROOM_RATIO = 4;
+const TILE_SIZE = 16;
+
+const ITERATIONS = 10;
+const ATTEMPTS_PER_ITERATION = 400;
+
+const MIN_ROOM_WIDTH = 3;
+const MIN_ROOM_HEIGHT = 2;
+const MAX_ROOM_WIDTH = 12;
+const MAX_ROOM_HEIGHT = 10;
 
 let seed;
 
@@ -17,8 +23,8 @@ function nextRand(min, max) {
   return min + rnd * (max - min);
 }
 
-function getRandomPointInCircle(radius) {
-  let t = 2 * Math.pi * nextRand();
+function getRandomPointInCircle(radius, center) {
+  let t = 2 * Math.PI * nextRand();
   let u = nextRand() + nextRand();
   let r = null;
 
@@ -29,8 +35,8 @@ function getRandomPointInCircle(radius) {
   }
 
   return new Phaser.Geom.Point(
-    roundPos(radius * r * Math.cos(t), TILE_SIZE),
-    roundPos(radius * r * Math.sin(t), TILE_SIZE));
+    roundPos(radius * r * Math.cos(t) + center.x, TILE_SIZE),
+    roundPos(radius * r * Math.sin(t) + center.y, TILE_SIZE));
 }
 
 function roundPos(n, m) {
@@ -38,50 +44,169 @@ function roundPos(n, m) {
 }
 
 class Room {
-  constructor(scene, topLeft) {
-    let width = nextRand(1, MAX_ROOM_WIDTH);
-    let height = nextRand(1, MAX_ROOM_HEIGHT);
+  constructor(topLeft, scene, scale = 1) {
+    this.scene = scene;
+    this.tiles = [];
+    this.container = scene.add.container();
+    this.topLeft = topLeft;
 
-    if (height > width && height / width > MAX_ROOM_RATIO) {
-      height = width * MAX_ROOM_RATIO;
-    } else if (width > height && width / height > MAX_ROOM_RATIO) {
-      width = height * MAX_ROOM_RATIO;
-    }
+    this.width = Math.floor(nextRand(Math.ceil(MIN_ROOM_WIDTH * scale), Math.ceil(MAX_ROOM_WIDTH * scale)));
+    this.height = Math.floor(nextRand(Math.ceil(MIN_ROOM_HEIGHT * scale), Math.ceil(MAX_ROOM_HEIGHT * scale)));
 
-    for (let i = 0; i < width; ++i) {
-      let y = topLeft.y;
-      for (let j = 0; j < height; ++j) {
-        let tile = scene.add.image(topLeft.x + i * TILE_SIZE, y, 'ground');
+    let y = topLeft.y;
+    for (let i = 0; i < this.height; i++) {
+      let row = [];
+      for (let j = 0; j < this.width; j++) {
+        let tile = new Tile(new Phaser.Geom.Point(topLeft.x + j * TILE_SIZE, y), TileTypes.FLOOR);
+        row.push(tile);
       }
-      topLeft.y += TILE_SIZE;
+
+      this.tiles.push(row);
+      y += TILE_SIZE;
     }
+
+    this.bounds = new Phaser.Geom.Rectangle(topLeft.x, topLeft.y, this.width * TILE_SIZE, this.height * TILE_SIZE);
+    this.center = new Phaser.Geom.Point(this.bounds.centerX, this.bounds.centerY);
+  }
+
+  createTileSprites() {
+    this.tiles.forEach(row => {
+      row.forEach(tile => {
+        tile.sprite = new Phaser.GameObjects.Sprite(this.scene, tile.topLeft.x, tile.topLeft.y, tile.type.toString());
+        tile.sprite.displayWidth = 16;
+        tile.sprite.displayHeight = 16;
+        tile.sprite.setOrigin(0, 0);
+        tile.sprite.setPosition(tile.topLeft.x, tile.topLeft.y);
+        this.container.add(tile.sprite);
+      });
+    });
+
+    this.container.setSize(this.bounds.width, this.bounds.height);
+    this.scene.physics.world.enable(this.container);
+  }
+}
+
+const enumValue = (name) => Object.freeze({toString: () => name});
+
+const TileTypes = Object.freeze({
+    FLOOR: enumValue("floor")
+});
+
+class Tile {
+  constructor(topLeft, type, sprite) {
+    this.topLeft = topLeft;
+    this.sprite = sprite;
+    this.type = type;
   }
 }
 
 export class Dungeon {
-  constructor(s, scene) {
+  constructor(scene, s) {
     seed = s;
+    this.seed = s;
+    this.radius = 512;
+    this.center = new Phaser.Geom.Point(scene.sys.game.canvas.width / 2, scene.sys.game.canvas.height / 2);;
     this.scene = scene;
-    this.rooms = this.spawnRooms();
-    //separateRooms(this.rooms);
+    this.delaunay = null;
+
+    this.graphics = this.scene.add.graphics();
+    this.graphics.lineStyle(5, 0xFFFFFF, 1.0);
+    this.graphics.strokeCircle(this.center.x, this.center.y, this.radius);
+
+    this.spawnRooms();
+    this.calculateHubs();
+    this.calculateDelaunay();
+    this.createSprites();
+  }
+
+  createSprites() {
+    this.rooms.forEach(room => {
+      //room.createTileSprites();
+      this.graphics.lineStyle(5, 0xFF0000, 1.0);
+      this.graphics.strokeRectShape(room.bounds);
+    });
+
+    this.hubRooms.forEach(room => {
+      this.graphics.lineStyle(5, 0x00FF00, 1.0);
+      this.graphics.strokeRectShape(room.bounds);
+    });
+
+    this.drawDelaunay();
   }
 
   spawnRooms() {
-    let rooms = [];
-    for (let i = 0; i < CELLS; ++i) {
-      let topLeft = getRandomPointInCircle(this.scene.sys.game.canvas.width / 2);
-      let room = new Room(this.scene, topLeft);
-      rooms.push(room);
+    this.rooms = [];
+
+    let scale = 1.0;
+    let reducer = scale / ITERATIONS;
+
+    for (let i = 0; i < ITERATIONS; ++i) {
+      scale -= reducer;
+      for (let j = 0; j < ATTEMPTS_PER_ITERATION; ++j) {
+        let topLeft = getRandomPointInCircle(this.radius, this.center);
+        let room = new Room(topLeft, this.scene, scale);
+        let valid = true;
+
+        this.rooms.forEach(r => {
+          let intersection = Phaser.Geom.Rectangle.Intersection(room.bounds, r.bounds);
+
+          if (intersection.width !== 0 || intersection.height !== 0) {
+            valid = false;
+          }
+        });
+
+        if (valid) {
+          this.rooms.push(room);
+        }
+      }
+    }
+  }
+
+  calculateHubs() {
+    let sumWidth = 0;
+    let sumHeight = 0;
+
+    this.hubRooms = [];
+
+    this.rooms.forEach(room => {
+      sumWidth += room.width;
+      sumHeight += room.height;
+    });
+
+    let meanWidth = sumWidth / this.rooms.length;
+    let meanHeight = sumHeight / this.rooms.length;
+
+    this.rooms.forEach(room => {
+    if (room.width > meanWidth * 1.25 && room.height > meanHeight * 1.25) {
+        this.hubRooms.push(room);
+      }
+    });
+  }
+
+  drawDelaunay() {
+    this.graphics.beginPath();
+    this.graphics.lineStyle(2, 0x882288);
+
+    for (let i = 0; i < this.delaunay.triangles.length; i += 3) {
+      let first = this.delaunay.triangles[i];
+      let second = this.delaunay.triangles[i+1];
+      let third = this.delaunay.triangles[i+2];
+
+      this.graphics.moveTo(this.centers[first].x, this.centers[first].y);
+      this.graphics.lineTo(this.centers[second].x, this.centers[second].y);
+      this.graphics.lineTo(this.centers[third].x, this.centers[third].y);
     }
 
-    return rooms;
+    this.graphics.closePath();
+    this.graphics.strokePath();
   }
 
-  getWidth() {
-    return this.scene.sys.game.canvas.width;
-  }
+  calculateDelaunay() {
+    this.centers = [];
+    this.hubRooms.forEach(room => {
+      this.centers.push(room.center);
+    });
 
-  getHeight() {
-    return this.scene.sys.game.canvas.height;
+    this.delaunay = Delaunator.from(this.centers, point => point.x, point => point.y);
   }
 }
