@@ -1,31 +1,20 @@
+import { DelaunayGraph } from 'delaunay-graph.js';
+import { Random } from 'random.js';
+
 //Have to use require instead of import for compatibility for this module
 let Delaunator = require('delaunator');
 
 const TILE_SIZE = 16;
-
 const ITERATIONS = 10;
 const ATTEMPTS_PER_ITERATION = 400;
-
 const MIN_ROOM_WIDTH = 3;
 const MIN_ROOM_HEIGHT = 2;
 const MAX_ROOM_WIDTH = 12;
 const MAX_ROOM_HEIGHT = 10;
 
-let seed;
-
-function nextRand(min, max) {
-  max = max || 1;
-  min = min || 0;
-
-  seed = (seed * 9301 + 49297) % 233280;
-  var rnd = seed / 233280;
-
-  return min + rnd * (max - min);
-}
-
 function getRandomPointInCircle(radius, center) {
-  let t = 2 * Math.PI * nextRand();
-  let u = nextRand() + nextRand();
+  let t = 2 * Math.PI * Random.nextRand();
+  let u = Random.nextRand() + Random.nextRand();
   let r = null;
 
   if (u > 1) {
@@ -102,7 +91,7 @@ class Tile {
 
 export class Dungeon {
   constructor(scene, s) {
-    seed = s;
+    this.random = Random.getInstance(s);
     this.seed = s;
     this.radius = 512;
     this.center = new Phaser.Geom.Point(scene.sys.game.canvas.width / 2, scene.sys.game.canvas.height / 2);;
@@ -131,7 +120,7 @@ export class Dungeon {
       this.graphics.strokeRectShape(room.bounds);
     });
 
-    this.drawDelaunay();
+    //this.drawDelaunay();
   }
 
   spawnRooms() {
@@ -183,7 +172,7 @@ export class Dungeon {
     });
   }
 
-  drawDelaunay() {
+  /*drawDelaunay() {
     this.graphics.beginPath();
     this.graphics.lineStyle(2, 0x882288);
 
@@ -199,7 +188,7 @@ export class Dungeon {
 
     this.graphics.closePath();
     this.graphics.strokePath();
-  }
+  */
 
   calculateDelaunay() {
     this.centers = [];
@@ -207,6 +196,6 @@ export class Dungeon {
       this.centers.push(room.center);
     });
 
-    this.delaunay = Delaunator.from(this.centers, point => point.x, point => point.y);
+    this.delaunay = new DelaunayGraph(this.centers, this.random);
   }
 }
