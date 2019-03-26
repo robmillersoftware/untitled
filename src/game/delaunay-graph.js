@@ -77,22 +77,44 @@ class GraphNode {
   }
 }
 
+class TreeEdge {
+  constructor(n1, n2) {
+    this.origin = n1;
+    this.destination = n2;
+
+    this.weight = Math.sqrt((Math.abs(n2.point.x - n1.point.x) * Math.abs(n1.point.x -n2.point.x)) + (Math.abs(n1.point.y - n2.point.y) * Math.abs(n1.point.y - n2.point.y)));
+  }
+}
+
+class TreeNode {
+  constructor(node) {
+    this.node = node;
+    this.edges = [];
+
+    this.node.neighbors.forEach(n => {
+      this.edges.push(new TreeEdge(node, n));
+    });
+  }
+
+  getShortestEdge() {
+    let sorted = this.edges.sort((e1, e2) => e1.weight - e2.weight);
+    return sorted[0];
+  }
+}
+
 class SpanningTree {
   constructor() {
     this.nodes = [];
     this.edges = [];
   }
 
-  getAllNeighbors() {
-    let neighbors = new Map();
+  addNode(node) {
+    let treeNode = new TreeNode(node);
+    this.nodes.push(treeNode);
+  }
 
-    this.nodes.forEach(node => {
-      node.neighbors.forEach(neighbor => {
-        if (!neighbors.has(neighbor)) {
-          neighbors.set()
-        }
-      });
-    });
+  addEdge(n1, n2) {
+
   }
 }
 
@@ -111,13 +133,11 @@ export class DelaunayGraph {
   buildGraph() {
     for (let i = 0; i < this.delaunay.triangles.length; i++) {
       let point = this.points[this.delaunay.triangles[i]];
-      if (!this.adjacencyList.has(point)) {
-        let adjacentPointIndexes = getAdjacentPoints(this.delaunay, this.delaunay.triangles[i]);
-        let adjacentPoints = adjacentPointIndexes.map(v => this.points[v]);
-        let weights = calculateWeights(point, adjacentPoints);
+      let adjacentPointIndexes = getAdjacentPoints(this.delaunay, this.delaunay.triangles[i]);
+      let adjacentPoints = adjacentPointIndexes.map(v => this.points[v]);
+      let weights = calculateWeights(point, adjacentPoints);
 
-        this.nodes.push(new GraphNode(point, adjacentPoints, weights));
-      }
+      this.nodes.push(new GraphNode(point, adjacentPoints, weights));
     }
   }
 
@@ -130,40 +150,19 @@ export class DelaunayGraph {
     this.minimalSpanningTree.push(this.nodes[start]);
 
     while(marked.size < this.nodes.length) {
+      let neighbors = this.minimalSpanningTree.getAllNeighbors();
+      const sortedNeighbors = new Map([...neighbors.entries()].sort((a, b) => a[1] - b[1]));
+      let iter = sortedNeighbors.keys();
+      let lowestWeight = iter.next().value;
 
-    }
-
-    while(!queue.empty()) {
-      let toProcess = queue.top();
-      queue.pop();
-
-      let node = toProcess[1];
-      if (marked.has(node)) {
-        continue;
+      while(marked.has(lowestWeight)) {
+        lowestWeight = iter.next().value;
       }
 
-      marked.set(node, true);
-      let minimumCost = [...node.adjacents.keys()].sort((a, b) => a - b);
-
-      if (!marked.has(minimumCost)) {
-        queue.push(node.adjacents[minimumCost]);
-        this.minimalSpanningTree.push(node, node.adjacents[minimumCost]);
-      }
+      this.minimalSpanningTree.addNode(lowestWeight);
+      this.minimalSpanningTree.addEdge()
+      marked.set(lowestWeight, true);
     }
-
-    // Checking for cycle
-    if(marked[x] == true)
-        continue;
-    minimumCost += p.first;
-    marked[x] = true;
-    for(int i = 0;i < adj[x].size();++i)
-    {
-        y = adj[x][i].second;
-        if(marked[y] == false)
-            Q.push(adj[x][i]);
-    }
-}
-return minimumCost;
   }
 
   bfs(start) {

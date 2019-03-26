@@ -43,4 +43,4 @@ class RandomNumbers {
   }
 }
 
-export default Random = new RandomNumbers();
+export let Random = new RandomNumbers();

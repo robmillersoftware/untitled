@@ -3,6 +3,7 @@ import { Random } from 'random.js';
 
 //Have to use require instead of import for compatibility for this module
 let Delaunator = require('delaunator');
+let random;
 
 const TILE_SIZE = 16;
 const ITERATIONS = 10;
@@ -13,8 +14,8 @@ const MAX_ROOM_WIDTH = 12;
 const MAX_ROOM_HEIGHT = 10;
 
 function getRandomPointInCircle(radius, center) {
-  let t = 2 * Math.PI * Random.nextRand();
-  let u = Random.nextRand() + Random.nextRand();
+  let t = 2 * Math.PI * random.nextRand();
+  let u = random.nextRand() + random.nextRand();
   let r = null;
 
   if (u > 1) {
@@ -39,8 +40,8 @@ class Room {
     this.container = scene.add.container();
     this.topLeft = topLeft;
 
-    this.width = Math.floor(nextRand(Math.ceil(MIN_ROOM_WIDTH * scale), Math.ceil(MAX_ROOM_WIDTH * scale)));
-    this.height = Math.floor(nextRand(Math.ceil(MIN_ROOM_HEIGHT * scale), Math.ceil(MAX_ROOM_HEIGHT * scale)));
+    this.width = Math.floor(random.nextRand(Math.ceil(MIN_ROOM_WIDTH * scale), Math.ceil(MAX_ROOM_WIDTH * scale)));
+    this.height = Math.floor(random.nextRand(Math.ceil(MIN_ROOM_HEIGHT * scale), Math.ceil(MAX_ROOM_HEIGHT * scale)));
 
     let y = topLeft.y;
     for (let i = 0; i < this.height; i++) {
@@ -91,7 +92,7 @@ class Tile {
 
 export class Dungeon {
   constructor(scene, s) {
-    this.random = Random.getInstance(s);
+    random = Random.getInstance(s);
     this.seed = s;
     this.radius = 512;
     this.center = new Phaser.Geom.Point(scene.sys.game.canvas.width / 2, scene.sys.game.canvas.height / 2);;
@@ -196,6 +197,6 @@ export class Dungeon {
       this.centers.push(room.center);
     });
 
-    this.delaunay = new DelaunayGraph(this.centers, this.random);
+    this.delaunay = new DelaunayGraph(this.centers, random);
   }
 }
