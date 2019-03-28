@@ -1,4 +1,5 @@
 const Delaunator = require('delaunator');
+const TinyQueue = require('tinyqueue');
 const sha256 = require('sha256');
 
 let random;
@@ -43,83 +44,45 @@ function getAdjacentPoints(delaunay, point) {
   return [...new Set(vertices)];
 }
 
-function calculateWeights(point, neighbors) {
-  let weights = [];
-  for (let n in neighbors) {
-    let dist = Math.sqrt((Math.abs(n.x - point.x) * Math.abs(n.x - point.x)) + (Math.abs(n.y - point.y) * Math.abs(n.y - point.y)));
-    weights.push(dist);
-  }
-
-  return weights;
-}
-
 class GraphNode {
-  constructor(point, neighbors = [], weights = []) {
-    this.id = random.nextRand(1, 9999999);
+  constructor(point, adjacents = [], neighbors = []) {
+    this.id = Math.floor(random.nextRand(1, 9999999));
     this.point = point;
-    this.adjacents = new Map();
-
-    for (let i = 0; i < neighbors.length; ++i) {
-      this.adjacents.set(weights[i], neighbors[i]);
-    }
-  }
-
-  getNeighborById(id) {
-    return this.neighbors.find(n => n.id === id);
-  }
-
-  getNeighborWeight(id) {
-    for (let i = 0; i < this.neighbors.length; ++i) {
-      if (this.neighbors[i].id === id) {
-        return this.weights[i];
-      }
-    }
+    this.adjacents = adjacents;
+    this.neighbors = neighbors
   }
 }
 
 class TreeEdge {
   constructor(n1, n2) {
-    this.origin = n1;
-    this.destination = n2;
+    this.first = n1;
+    this.second = n2;
 
-    this.weight = Math.sqrt((Math.abs(n2.point.x - n1.point.x) * Math.abs(n1.point.x -n2.point.x)) + (Math.abs(n1.point.y - n2.point.y) * Math.abs(n1.point.y - n2.point.y)));
-  }
-}
-
-class TreeNode {
-  constructor(node) {
-    this.node = node;
-    this.edges = [];
-
-    this.node.neighbors.forEach(n => {
-      this.edges.push(new TreeEdge(node, n));
-    });
-  }
-
-  getShortestEdge() {
-    let sorted = this.edges.sort((e1, e2) => e1.weight - e2.weight);
-    return sorted[0];
+    this.weight = Math.sqrt((Math.abs(n2.x - n1.point.x) * Math.abs(n1.point.x - n2.x)) + (Math.abs(n1.point.y - n2.y) * Math.abs(n1.point.y - n2.y)));
   }
 }
 
 class SpanningTree {
   constructor() {
-    this.nodes = [];
     this.edges = [];
   }
 
-  addNode(node) {
-    let treeNode = new TreeNode(node);
-    this.nodes.push(treeNode);
-  }
+  drawTree(graphics) {
+    graphics.beginPath();
+    graphics.lineStyle(2, 0x00FF00);
 
-  addEdge(n1, n2) {
+    this.edges.forEach(edge => {
+      this.graphics.moveTo(edge.first.point.x, edge.first.point.y);
+      this.graphics.lineTo(edge.second.point.x, edge.second.point.y);
+    });
 
+    graphics.closePath();
+    graphics.strokePath();
   }
 }
 
 export class DelaunayGraph {
-  constructor(points, r) {
+  constructor(points, r, graphics) {
     random = r;
 
     this.points = points;
@@ -128,6 +91,7 @@ export class DelaunayGraph {
     this.delaunay = Delaunator.from(points, point => point.x, point => point.y);
     this.buildGraph();
     this.buildMinimalSpanningTree();
+    this.minimalSpanningTree.drawGraphics(graphics);
   }
 
   buildGraph() {
@@ -135,33 +99,47 @@ export class DelaunayGraph {
       let point = this.points[this.delaunay.triangles[i]];
       let adjacentPointIndexes = getAdjacentPoints(this.delaunay, this.delaunay.triangles[i]);
       let adjacentPoints = adjacentPointIndexes.map(v => this.points[v]);
-      let weights = calculateWeights(point, adjacentPoints);
 
-      this.nodes.push(new GraphNode(point, adjacentPoints, weights));
+      this.nodes.push(new GraphNode(point, adjacentPoints));
     }
+
+    this.nodes.forEach(node => {
+      node.adjacents.forEach(adjacent => {
+        node.neighbors.push(this.nodes.find(n => n.point === adjacent));
+      });
+    });
   }
 
   buildMinimalSpanningTree() {
-    let queue = [];
-    let marked = new Map();
-    let start = Math.floor(random.nextRand(0, this.nodes.length));
+    let queue = new TinyQueue([], function (a, b) {
+	     return a.weight - b.weight;
+     });
 
     this.minimalSpanningTree = new SpanningTree();
-    this.minimalSpanningTree.push(this.nodes[start]);
 
-    while(marked.size < this.nodes.length) {
-      let neighbors = this.minimalSpanningTree.getAllNeighbors();
-      const sortedNeighbors = new Map([...neighbors.entries()].sort((a, b) => a[1] - b[1]));
-      let iter = sortedNeighbors.keys();
-      let lowestWeight = iter.next().value;
+    let checked = new Map();
+    let start = Math.floor(random.nextRand(0, this.nodes.length));
+    let currentNode = this.nodes[start];
 
-      while(marked.has(lowestWeight)) {
-        lowestWeight = iter.next().value;
+    checked.set(this.nodes[start], true);
+
+    currentNode.neighbors.forEach(neighbor => {
+      let edge = new TreeEdge(currentNode.point, neighbor);
+      queue.push(edge);
+    });
+
+    while(checked.size < this.nodes.length) {
+      console.log(JSON.stringify(currentNode));
+      let shortest = queue.pop();
+      if (!checked.has(shortest.second)) {
+        this.minimalSpanningTree.edges.push(shortest);
+        checked.set(currentNode, true);
+        currentNode = shortest.second;
+        currentNode.neighbors.forEach(neighbor => {
+          let edge = new TreeEdge(currentNode, neighbor);
+          queue.push(edge);
+        });
       }
-
-      this.minimalSpanningTree.addNode(lowestWeight);
-      this.minimalSpanningTree.addEdge()
-      marked.set(lowestWeight, true);
     }
   }
 

@@ -197,6 +197,6 @@ export class Dungeon {
       this.centers.push(room.center);
     });
 
-    this.delaunay = new DelaunayGraph(this.centers, random);
+    this.delaunay = new DelaunayGraph(this.centers, random, this.graphics);
   }
 }
