@@ -19,7 +19,7 @@ module.exports = {
         open: false
     },
     browserifyApp: {
-        entries: src + '/js/main.js',
+        entries: src + '/game/main.js',
         debug: true
     },
     browserifyLib: {

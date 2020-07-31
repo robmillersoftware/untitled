@@ -50,13 +50,13 @@ class Ctrls {
         let value = this.bindings.get(ctrl);
         if (value !== undefined) {
             if (!Array.isArray(value)) {
-                return this.keyboard.isDown(value);
+                //return this.keyboard.isDown(value);
             } else {
                 let pressed = false;
                 value.forEach((key, i) => {
-                    if (this.keyboard.isDown(key)) {
+                    /*if (this.keyboard.isDown(key)) {
                         pressed = true;
-                    }
+                    }*/
                 });
 
                 return pressed;

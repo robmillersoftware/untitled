@@ -4,10 +4,10 @@ import {Controls} from 'input/controls';
  * This class directs input to a target on each update
  */
 export class InputProcessor {
-    constructor(game) {
-        this.game = game;
+    constructor(scene) {
+        this.scene = scene;
 
-        Controls.setKeyboard(this.game.input.keyboard);
+        Controls.setKeyboard(this.scene.input.keyboard);
 
         this.target = null;
         this.controls = null;
@@ -26,6 +26,6 @@ export class InputProcessor {
      * them to the current target
      */
     processInput() {
-        this.target.handleInput();
+        //this.target.handleInput();
     }
 }

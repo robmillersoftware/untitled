@@ -31,39 +31,39 @@ export class Camera extends InputHandler {
         //The cursor is an invisible object that the camera follows. Phaser's camera isn't
         //very good at zooming and moving independently, so having it follow a displayObject
         //makes it more manageable.
-        this.cursor = this.group.create(this.scene.world.centerX, this.scene.world.centerY);
-        this.scene.physics.arcade.enableBody(this.cursor);
+        this.cursor = this.group.create(this.scene.sys.game.canvas.width / 2, this.scene.sys.game.canvas.height / 2);
+        //this.scene.matter.enableBody(this.cursor);
 
         //Setting bounds to null allows the camera to move anywhere within the scene
-        this.scene.camera.bounds = null;
+        //this.scene.camera.bounds = null;
 
         //Zoom out
         //this.scene.camera.scale.set(0.5, 0.5);
-        this.group.scale.set(0.5, 0.5);
-        this.scene.camera.follow(this.cursor);
+        //this.group.scale.set(0.5, 0.5);
+        //this.scene.camera.follow(this.cursor);
 
-        this.scene.input.mouse.mouseWheelCallback = this.onScroll.bind(this);
+        //this.scene.input.mouse.mouseWheelCallback = this.onScroll.bind(this);
     }
 
     onUp() {
-        this.cursor.body.velocity.y -= 500;
+        //this.cursor.body.velocity.y -= 500;
     }
 
     onDown() {
-        this.cursor.body.velocity.y += 500;
+        //this.cursor.body.velocity.y += 500;
     }
 
     onRight() {
-        this.cursor.body.velocity.x += 500;
+        //this.cursor.body.velocity.x += 500;
     }
 
     onLeft() {
-        this.cursor.body.velocity.x -= 500;
+        //this.cursor.body.velocity.x -= 500;
     }
 
     onStop() {
-        this.cursor.body.velocity.x = 0;
-        this.cursor.body.velocity.y = 0;
+        //this.cursor.body.velocity.x = 0;
+        //this.cursor.body.velocity.y = 0;
     }
 
     onScroll(event) {
